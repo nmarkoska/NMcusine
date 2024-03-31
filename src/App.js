@@ -27,11 +27,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/singlerecipe/:id" element={<SingleRecipe />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/admin" element={<Admin />} />
           {/* Any other protected routes */}
           <Route path="/createrecipes" element={<CreateRecipes />} />
-          <Route path="/singlerecipe/:id" element={<SingleRecipe />} />
         </Route>
       </Routes>
     </Router>

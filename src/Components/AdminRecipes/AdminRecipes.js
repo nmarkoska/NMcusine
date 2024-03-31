@@ -134,7 +134,7 @@ const AdminRecipes = () => {
                   name="Ime"
                   value={editedRecipe.Ime}
                   onChange={handleInputChange}
-                  sx={{ marginBottom: "20px" }}
+                  sx={{ marginBottom: "20px" , marginTop: "20px"}}
                 />
                 <TextField
                   label="Линк за слика"
@@ -145,7 +145,7 @@ const AdminRecipes = () => {
                   sx={{ marginBottom: "20px" }}
                 />
                 <TextField
-                  label="Ingredients"
+                  label="Состојки"
                   variant="outlined"
                   name="Sostojki"
                   multiline
