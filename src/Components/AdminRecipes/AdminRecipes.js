@@ -8,6 +8,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 
 //
@@ -20,6 +25,8 @@ const AdminRecipes = () => {
   const [collectionData, setCollectionData] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editedRecipe, setEditedRecipe] = useState(null);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [recipeToDelete, setRecipeToDelete] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +49,29 @@ const AdminRecipes = () => {
   const handleEdit = (recipe) => {
     setEditedRecipe({ ...recipe });
     setEditMode(true);
+  };
+
+  const handleDelete = (recipe) => {
+    setRecipeToDelete(recipe);
+    setDeleteConfirmationOpen(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    try {
+      await firestore.collection("Recepti").doc(recipeToDelete.id).delete();
+      const updatedCollectionData = collectionData.filter(
+        (recipe) => recipe.id !== recipeToDelete.id
+      );
+      setCollectionData(updatedCollectionData);
+      setDeleteConfirmationOpen(false);
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  };
+
+  const handleDeleteCancelled = () => {
+    setRecipeToDelete(null);
+    setDeleteConfirmationOpen(false);
   };
 
   const handleInputChange = (e) => {
@@ -85,102 +115,142 @@ const AdminRecipes = () => {
 
   return (
     <div className="AdminRecipes-container">
-      {collectionData.map((recipe) => (
-        <div className="recipe-card" key={recipe.id}>
-          {editMode && editedRecipe.id === recipe.id ? (
-            <form onSubmit={handleSave} className="edit-recipe-form">
-              {console.log({ recipe })}
-              <TextField
-                label="Name"
-                variant="outlined"
-                name="Ime"
-                value={editedRecipe.Ime}
-                onChange={handleInputChange}
+      {collectionData.map(
+        (
+          recipe //sve recepti so gi imam
+        ) => (
+          <div className="recipe-card" key={recipe.id}>
+            {editMode && editedRecipe.id === recipe.id ? (
+              <form
+                onSubmit={handleSave}
+                className="edit-recipe-form"
                 sx={{ marginBottom: "20px" }}
-              />
-              <TextField
-                label="Image URL"
-                variant="outlined"
-                name="IMG"
-                value={editedRecipe.IMG}
-                onChange={handleInputChange}
-                sx={{ marginBottom: "20px" }}
-              />
-              <TextField
-                label="Ingredients (comma separated)"
-                variant="outlined"
-                name="Sostojki"
-                multiline
-                rows={4}
-                value={editedRecipe.Sostojki.join(", ")}
-                onChange={(e) =>
-                  handleInputChange({
-                    target: {
-                      name: "Sostojki",
-                      value: e.target.value.split(",").map((s) => s.trim()),
-                    },
-                  })
-                }
-                sx={{ marginBottom: "20px" }}
-              />
-              <TextField
-                label="Preparation"
-                variant="outlined"
-                multiline
-                rows={4}
-                name="Podgotovka"
-                value={editedRecipe.Podgotovka}
-                onChange={handleInputChange}
-                sx={{ marginBottom: "20px" }}
-              />
-              <TextField
-                label="Calories"
-                variant="outlined"
-                name="Kalorii"
-                type="number"
-                value={editedRecipe.Kalorii}
-                onChange={handleInputChange}
-                sx={{ marginBottom: "20px" }}
-              />
-              <FormControl fullWidth sx={{ marginBottom: "20px" }}>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  label="Category"
-                  name="Kategorija"
-                  value={editedRecipe.Kategorija}
-                  onChange={handleInputChange}
-                >
-                  {categories.map((category) => (
-                    <MenuItem key={category.value} value={category.value}>
-                      {category.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              >
+                {console.log({ recipe })}
+
                 <TextField
-                  label="Time"
+                  label="Име"
                   variant="outlined"
-                  name="Vreme"
-                  value={editedRecipe.Vreme}
+                  name="Ime"
+                  value={editedRecipe.Ime}
                   onChange={handleInputChange}
-                  sx={{ marginBottom: "20px", marginTop: "20px" }}
+                  sx={{ marginBottom: "20px" }}
                 />
-              </FormControl>
-              <Button type="submit" variant="contained" color="primary">
-                Save Changes
-              </Button>
-            </form>
-          ) : (
-            <>
-              <img className="recipe-image" src={recipe.IMG} alt={recipe.Ime} />
-              <div className="recipe-content">
-                <h2 className="recipe-title">{recipe.Ime}</h2>
-                <Button onClick={() => handleEdit(recipe)}>Edit</Button>
-                {/* Display the rest of the recipe details */}
-              </div>
-            </>
-          )}
-        </div>
-      ))}
+                <TextField
+                  label="Линк за слика"
+                  variant="outlined"
+                  name="IMG"
+                  value={editedRecipe.IMG}
+                  onChange={handleInputChange}
+                  sx={{ marginBottom: "20px" }}
+                />
+                <TextField
+                  label="Ingredients"
+                  variant="outlined"
+                  name="Sostojki"
+                  multiline
+                  rows={4}
+                  value={editedRecipe.Sostojki.join("\n")}
+                  onChange={(e) => {
+                    const newValue = e.target.value
+                      .split("\n")
+                      .map((s) => s.trim());
+                    handleInputChange({
+                      target: {
+                        name: "Состојки",
+                        value: newValue,
+                      },
+                    });
+                  }}
+                  sx={{ marginBottom: "20px" }}
+                />
+
+                <TextField
+                  label="Подготовка"
+                  variant="outlined"
+                  multiline
+                  rows={4}
+                  name="Podgotovka"
+                  value={editedRecipe.Podgotovka}
+                  onChange={handleInputChange}
+                  sx={{ marginBottom: "20px" }}
+                />
+                <TextField
+                  label="Калории"
+                  variant="outlined"
+                  name="Kalorii"
+                  type="number"
+                  value={editedRecipe.Kalorii}
+                  onChange={handleInputChange}
+                  sx={{ marginBottom: "20px" }}
+                />
+                <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+                  <InputLabel>Категорија</InputLabel>
+                  <Select
+                    label="Категорија"
+                    name="Kategorija"
+                    value={editedRecipe.Kategorija}
+                    onChange={handleInputChange}
+                  >
+                    {categories.map((category) => (
+                      <MenuItem key={category.value} value={category.value}>
+                        {category.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <TextField
+                    label="Време за подготовка"
+                    variant="outlined"
+                    name="Vreme"
+                    value={editedRecipe.Vreme}
+                    onChange={handleInputChange}
+                    sx={{ marginBottom: "20px", marginTop: "20px" }}
+                  />
+                </FormControl>
+                <Button type="submit" variant="contained" color="primary">
+                  Зачувај
+                </Button>
+              </form>
+            ) : (
+              <>
+                <img
+                  className="recipe-image"
+                  src={recipe.IMG}
+                  alt={recipe.Ime}
+                />
+                <div className="recipe-content">
+                  <h2 className="recipe-title">{recipe.Ime}</h2>
+                  <Button onClick={() => handleEdit(recipe)}>Едитирај</Button>
+                  <Button onClick={() => handleDelete(recipe)}>Избриши</Button>
+                  {/* Display the rest of the recipe details */}
+                </div>
+              </>
+            )}
+          </div>
+        )
+      )}
+
+      <Dialog
+        open={deleteConfirmationOpen}
+        onClose={handleDeleteCancelled}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Потврди бришење</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Дали сте сигурни дека сакате да го избришете овој рецепт?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancelled} color="primary">
+            Не
+          </Button>
+          <Button onClick={handleDeleteConfirmed} color="primary" autoFocus>
+            Да
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
