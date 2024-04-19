@@ -12,7 +12,7 @@ function SingleRecipe() {
   const [loading, setLoading] = useState(true); // State to indicate loading status
 
   useEffect(() => {
-    // Function to fetch the recipe document from Firestore
+    
     const fetchRecipe = async () => {
       try {
         const recipeDoc = await firebase
@@ -21,7 +21,7 @@ function SingleRecipe() {
           .doc(recipeId)
           .get();
         if (recipeDoc.exists) {
-          // If the document exists, set the recipe state
+          
           setRecipe(recipeDoc.data());
         } else {
           console.log("Recipe not found");
@@ -29,12 +29,12 @@ function SingleRecipe() {
       } catch (error) {
         console.error("Error fetching recipe:", error);
       } finally {
-        setLoading(false); // Set loading to false regardless of success or failure
+        setLoading(false); 
       }
     };
 
-    fetchRecipe(); // Call the fetchRecipe function when the component mounts
-  }, [recipeId]); // Ensure useEffect runs only when recipeId changes
+    fetchRecipe(); 
+  }, [recipeId]); 
 
   if (loading) {
     return (

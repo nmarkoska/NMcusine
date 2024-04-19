@@ -15,7 +15,7 @@ function Popup() {
   return (
     <div className={`popup-container ${showPopup ? "show" : "hide"}`}>
       <div className="popup-content">
-        <img src="https://www.rakijagrill.com/wp-content/uploads/2019/11/shutterstock_1502599004-1.jpg" />
+        <img src="https://explore-balkans.com/wp-content/uploads/2022/03/see-rural-balknas-980x653.jpeg" />
         <div className="popup-text">
           <p>Добредојдовте во светот на вкусовите!</p>
         </div>

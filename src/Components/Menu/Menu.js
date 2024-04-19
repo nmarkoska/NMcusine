@@ -168,6 +168,15 @@ export default function SearchAppBar({
                 placeholder="Внеси алергенс"
                 inputProps={{ "aria-label": "search" }}
                 onChange={(e) => setAlergiesTerm(e.target.value)}
+                onClick={() =>
+                  redirectToHome
+                    ? navigate("/")
+                    : (() => {
+                        setCategoryTerm("");
+                        handleScrollToRecipes();
+                      })()
+                }
+                sx={{ cursor: "pointer" }}
               />
             </Search>
           </Box>
